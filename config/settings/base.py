@@ -1,90 +1,85 @@
-# """
-# Base settings for English Learning App Backend.
-# """
+"""
+Base settings for English Learning App Backend.
+"""
 
-# import os
-# from pathlib import Path
-# from datetime import timedelta
+import os
+from pathlib import Path
+from datetime import timedelta
 
-# import environ
+import environ
 
-# # Build paths inside the project like this: BASE_DIR / 'subdir'.
-# BASE_DIR = Path(__file__).resolve().parent.parent.parent
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-# # Load environment variables
-# env = environ.Env()
-# environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+# Load environment variables
+env = environ.Env()
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
-# # SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = env('SECRET_KEY', default='django-insecure-change-me-in-production')
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = 'django-insecure-change-me-in-production'
 
-# # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = env.bool('DEBUG', default=False)
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
 
-# ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
-# # Application definition
-# DJANGO_APPS = [
-#     'django.contrib.admin',
-#     'django.contrib.auth',
-#     'django.contrib.contenttypes',
-#     'django.contrib.sessions',
-#     'django.contrib.messages',
-#     'django.contrib.staticfiles',
-#     'django.contrib.sites',
-# ]
+# Application definition
+DJANGO_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'django.contrib.sites',
+]
 
-# THIRD_PARTY_APPS = [
-#     'rest_framework',
-#     'rest_framework_simplejwt',
-#     'corsheaders',
-#     'allauth',
-#     'allauth.account',
-#     'allauth.socialaccount',
-#     'drf_spectacular',
-# ]
+THIRD_PARTY_APPS = [
+    'rest_framework',
+    'rest_framework_simplejwt',
+    'corsheaders',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'drf_spectacular',
+]
 
-# LOCAL_APPS = [
-#     'apps.users',
-#     'apps.courses',
-#     'apps.lessons',
-#     'apps.exercises',
-#     'apps.progress',
-#     'apps.analytics',
-# ]
+LOCAL_APPS = [
+    'apps.users',
+]
 
-# INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
+INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
-# MIDDLEWARE = [
-#     'corsheaders.middleware.CorsMiddleware',
-#     'django.middleware.security.SecurityMiddleware',
-#     'whitenoise.middleware.WhiteNoiseMiddleware',
-#     'django.contrib.sessions.middleware.SessionMiddleware',
-#     'django.middleware.common.CommonMiddleware',
-#     'django.middleware.csrf.CsrfViewMiddleware',
-#     'django.contrib.auth.middleware.AuthenticationMiddleware',
-#     'django.contrib.messages.middleware.MessageMiddleware',
-#     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-#     'allauth.account.middleware.AccountMiddleware',
-# ]
+MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
+]
 
-# ROOT_URLCONF = 'config.urls'
+ROOT_URLCONF = 'config.urls'
 
-# TEMPLATES = [
-#     {
-#         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-#         'DIRS': [BASE_DIR / 'templates'],
-#         'APP_DIRS': True,
-#         'OPTIONS': {
-#             'context_processors': [
-#                 'django.template.context_processors.debug',
-#                 'django.template.context_processors.request',
-#                 'django.contrib.auth.context_processors.auth',
-#                 'django.contrib.messages.context_processors.messages',
-#             ],
-#         },
-#     },
-# ]
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [BASE_DIR / 'templates'],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
 
 # WSGI_APPLICATION = 'config.wsgi.application'
 
@@ -119,9 +114,9 @@
 # USE_TZ = True
 
 # # Static files (CSS, JavaScript, Images)
-# STATIC_URL = '/static/'
-# STATIC_ROOT = BASE_DIR / 'staticfiles'
-# STATICFILES_DIRS = [BASE_DIR / 'static']
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [BASE_DIR / 'static']
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # # Media files
 # MEDIA_URL = '/media/'
