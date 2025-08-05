@@ -84,12 +84,12 @@ TEMPLATES = [
 # WSGI_APPLICATION = 'config.wsgi.application'
 
 # # Database
-# DATABASES = {
-#     'default': env.db(
-#         'DATABASE_URL',
-#         default='postgres://postgres:postgres@localhost:5432/english_learning'
-#     )
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
 
 # # Password validation
 # AUTH_PASSWORD_VALIDATORS = [
