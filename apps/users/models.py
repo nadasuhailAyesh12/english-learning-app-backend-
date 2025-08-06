@@ -1,113 +1,38 @@
-# """
-# User models for English Learning App.
-# """
+from django.db import models
 
-# from django.contrib.auth.models import AbstractUser
-# from django.db import models
-# from django.utils.translation import gettext_lazy as _
+class User(models.Model):
+    ROLE_CHOICES = [
+        ('student', 'Student'),
+        ('teacher', 'Teacher'),
+    ]
+    id = models.AutoField(primary_key=True)
+    email = models.EmailField(unique=True)
+    password_hash = models.CharField(max_length=255)
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES)
+    name = models.CharField(max_length=255)
+    profile_photo = models.URLField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
-
-# class User(AbstractUser):
-#     """
-#     Custom user model for English Learning App.
-#     """
-
-#     # Remove username field
-#     username = None
-
-#     # Email as primary identifier
-#     email = models.EmailField(_('email address'), unique=True)
-
-#     # Additional fields
-#     first_name = models.CharField(_('first name'), max_length=150)
-#     last_name = models.CharField(_('last name'), max_length=150)
-#     date_of_birth = models.DateField(_('date of birth'), null=True, blank=True)
-#     profile_picture = models.ImageField(
-#         _('profile picture'),
-#         upload_to='profile_pictures/',
-#         null=True,
-#         blank=True
-#     )
-
-#     # Learning preferences
-#     native_language = models.CharField(
-#         _('native language'),
-#         max_length=50,
-#         default='English'
-#     )
-#     learning_level = models.CharField(
-#         _('learning level'),
-#         max_length=20,
-#         choices=[
-#             ('beginner', _('Beginner')),
-#             ('intermediate', _('Intermediate')),
-#             ('advanced', _('Advanced')),
-#         ],
-#         default='beginner'
-#     )
-
-#     # Timestamps
-#     created_at = models.DateTimeField(auto_now_add=True)
-#     updated_at = models.DateTimeField(auto_now=True)
-
-#     # Email verification
-#     email_verified = models.BooleanField(default=False)
-#     email_verification_token = models.CharField(
-#         max_length=100,
-#         null=True,
-#         blank=True
-#     )
-
-#     USERNAME_FIELD = 'email'
-#     REQUIRED_FIELDS = ['first_name', 'last_name']
-
-#     class Meta:
-#         verbose_name = _('user')
-#         verbose_name_plural = _('users')
-#         db_table = 'users'
-
-#     def __str__(self):
-#         return self.email
-
-#     @property
-#     def full_name(self):
-#         """Return the user's full name."""
-#         return f"{self.first_name} {self.last_name}".strip()
-
-#     def get_short_name(self):
-#         """Return the user's first name."""
-#         return self.first_name
+    def __str__(self):
+        return self.email
 
 
-# class UserProfile(models.Model):
-#     """
-#     Extended user profile with additional learning data.
-#     """
+class Student(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    level = models.ForeignKey('learning.Level', on_delete=models.SET_NULL, null=True, blank=True)
+    placement_score = models.IntegerField()
+    subscription_status = models.BooleanField(default=False)
+    is_available = models.BooleanField(default=True)
 
-#     user = models.OneToOneField(
-#         User,
-#         on_delete=models.CASCADE,
-#         related_name='profile'
-#     )
+    def __str__(self):
+        return f"Student: {self.user.name}"
 
-#     # Learning statistics
-#     total_study_time = models.DurationField(default=0)
-#     lessons_completed = models.IntegerField(default=0)
-#     exercises_completed = models.IntegerField(default=0)
-#     current_streak = models.IntegerField(default=0)
-#     longest_streak = models.IntegerField(default=0)
 
-#     # Preferences
-#     daily_goal_minutes = models.IntegerField(default=30)
-#     notifications_enabled = models.BooleanField(default=True)
-#     email_notifications = models.BooleanField(default=True)
+class Teacher(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    bio = models.TextField(blank=True, null=True)
+    office_hours = models.CharField(max_length=255, blank=True, null=True)
+    is_available = models.BooleanField(default=True)
 
-#     # Timestamps
-#     created_at = models.DateTimeField(auto_now_add=True)
-#     updated_at = models.DateTimeField(auto_now=True)
-
-#     class Meta:
-#         db_table = 'user_profiles'
-
-#     def __str__(self):
-#         return f"Profile for {self.user.email}"
+    def __str__(self):
+        return f"Teacher: {self.user.name}"

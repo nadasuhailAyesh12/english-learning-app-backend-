@@ -46,6 +46,12 @@ THIRD_PARTY_APPS = [
 
 LOCAL_APPS = [
     'apps.users',
+    'apps.learning',
+    'apps.communication',
+    'apps.community',
+    'apps.voice',
+    'apps.payments',
+    'apps.activity',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -86,11 +92,14 @@ TEMPLATES = [
 # # Database
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'elb',
+        'USER': 'postgres',
+        'PASSWORD': '2288',
+        'HOST': 'localhost',   # or the IP of your PostgreSQL server
+        'PORT': '5432',        # default PostgreSQL port
     }
 }
-
 # # Password validation
 # AUTH_PASSWORD_VALIDATORS = [
 #     {
