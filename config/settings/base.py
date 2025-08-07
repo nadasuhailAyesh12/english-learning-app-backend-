@@ -94,10 +94,15 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'elb',
-        'USER': 'postgres',
-        'PASSWORD': '2288',
-        'HOST': 'localhost',   # or the IP of your PostgreSQL server
-        'PORT': '5432',        # default PostgreSQL port
+        'USER': 'neondb_owner',
+        'PASSWORD': 'npg_DvO0jG2BKFJH',
+        'HOST': 'ep-shy-block-a2b612yb-pooler.eu-central-1.aws.neon.tech',
+        'PORT': '5432',
+        'OPTIONS': {
+            'sslmode': 'require',
+            'sslrootcert': 'prod-ca-2021.crt',  # Optional for enhanced security
+            'channel_binding': 'require',
+        },
     }
 }
 # # Password validation
