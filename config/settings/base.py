@@ -42,6 +42,7 @@ THIRD_PARTY_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'drf_spectacular',
+    'rest_framework.authtoken',
 ]
 
 LOCAL_APPS = [
@@ -167,6 +168,14 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 #     ),
 # }
 
+REST_FRAMEWORK = {
+    "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.AllowAny"],
+}
+JWT_SETTINGS = {
+    "ALGORITHM": "HS256",
+    "ACCESS_TTL_MIN": 15,
+    "REFRESH_TTL_DAYS": 7,
+}
 # # JWT Settings
 # SIMPLE_JWT = {
 #     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),

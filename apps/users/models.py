@@ -20,12 +20,22 @@ class User(models.Model):
 class Student(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     level = models.ForeignKey('learning.Level', on_delete=models.SET_NULL, null=True, blank=True)
-    placement_score = models.IntegerField()
+    placement_score = models.IntegerField(null=True, blank=True)
     subscription_status = models.BooleanField(default=False)
     is_available = models.BooleanField(default=True)
 
     def __str__(self):
         return f"Student: {self.user.name}"
+
+
+class AuthToken(models.Model):
+    key = models.CharField(max_length=64, unique=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tokens')
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"{self.user.email} - {self.key[:8]}..."
 
 
 class Teacher(models.Model):

@@ -1,118 +1,79 @@
-# """
-# Views for user management.
-# """
+import jwt, uuid
+from datetime import datetime, timedelta, timezone
+from django.conf import settings
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status, permissions
+from .serializers import SignupSerializer, LoginSerializer, UserSerializer, StudentSerializer
+from .models import User, Student
 
-# from rest_framework import viewsets, status, permissions
-# from rest_framework.decorators import action
-# from rest_framework.response import Response
-# from django.contrib.auth import get_user_model
+def _cfg(): return getattr(settings, "JWT_SETTINGS", {})
+def _now(): return datetime.now(timezone.utc)
 
-# from .models import UserProfile
-# from .serializers import (
-#     UserSerializer,
-#     UserCreateSerializer,
-#     UserUpdateSerializer,
-#     UserProfileSerializer,
-#     PasswordChangeSerializer,
-# )
+def _encode_long_lived_token(user_id: int):
+    cfg = _cfg()
+    exp = _now() + timedelta(days=cfg.get("ACCESS_TTL_DAYS", 30))
+    payload = {
+        "sub": str(user_id),
+        "type": "access",     
+        "iat": int(_now().timestamp()),
+        "exp": int(exp.timestamp()),
+        "jti": uuid.uuid4().hex,
+    }
+    token = jwt.encode(payload, settings.SECRET_KEY, algorithm=cfg.get("ALGORITHM", "HS256"))
+    return token
 
-# User = get_user_model()
+def _decode(token: str):
+    return jwt.decode(token, settings.SECRET_KEY, algorithms=[_cfg().get("ALGORITHM","HS256")])
 
+def _get_user_from_bearer(request):
+    auth = request.headers.get("Authorization", "")
+    if not auth.startswith("Bearer "):
+        return None, Response({"detail": "Authorization header missing or invalid."}, status=401)
+    token = auth.split(" ", 1)[1].strip()
+    try:
+        payload = _decode(token)
+    except jwt.ExpiredSignatureError:
+        return None, Response({"detail": "Token expired."}, status=401)
+    except jwt.InvalidTokenError:
+        return None, Response({"detail": "Invalid token."}, status=401)
 
-# class UserViewSet(viewsets.ModelViewSet):
-#     """
-#     ViewSet for user management.
-#     """
+    try:
+        user = User.objects.get(id=int(payload["sub"]))
+    except (User.DoesNotExist, ValueError):
+        return None, Response({"detail": "User not found."}, status=401)
+    return user, None
 
-#     queryset = User.objects.all()
-#     permission_classes = [permissions.IsAuthenticated]
+class SignupView(APIView):
+    permission_classes = [permissions.AllowAny]
+    def post(self, request):
+        s = SignupSerializer(data=request.data)
+        s.is_valid(raise_exception=True)
+        user = s.save()
+        token = _encode_long_lived_token(user.id)
+        return Response({"user": UserSerializer(user).data, "token": token}, status=201)
 
-#     def get_serializer_class(self):
-#         """Return appropriate serializer class."""
-#         if self.action == 'create':
-#             return UserCreateSerializer
-#         elif self.action in ['update', 'partial_update']:
-#             return UserUpdateSerializer
-#         return UserSerializer
+class LoginView(APIView):
+    permission_classes = [permissions.AllowAny]
+    def post(self, request):
+        s = LoginSerializer(data=request.data)
+        s.is_valid(raise_exception=True)
+        user = s.validated_data["user"]
+        token = _encode_long_lived_token(user.id)  
+        return Response({"user": UserSerializer(user).data, "token": token}, status=200)
 
-#     def get_permissions(self):
-#         """Return appropriate permissions."""
-#         if self.action == 'create':
-#             return [permissions.AllowAny()]
-#         return super().get_permissions()
+class LogoutView(APIView):
+    def post(self, request):
+        return Response({"detail": "Logged out."}, status=200)
 
-#     def get_queryset(self):
-#         """Return queryset based on user permissions."""
-#         if self.request.user.is_staff:
-#             return User.objects.all()
-#         return User.objects.filter(id=self.request.user.id)
-
-#     @action(detail=False, methods=['get'])
-#     def me(self, request):
-#         """Get current user information."""
-#         serializer = self.get_serializer(request.user)
-#         return Response(serializer.data)
-
-#     @action(detail=False, methods=['put', 'patch'])
-#     def update_profile(self, request):
-#         """Update current user profile."""
-#         serializer = UserUpdateSerializer(
-#             request.user,
-#             data=request.data,
-#             partial=True
-#         )
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-#     @action(detail=False, methods=['post'])
-#     def change_password(self, request):
-#         """Change user password."""
-#         serializer = PasswordChangeSerializer(
-#             data=request.data,
-#             context={'request': request}
-#         )
-#         if serializer.is_valid():
-#             user = request.user
-#             user.set_password(serializer.validated_data['new_password'])
-#             user.save()
-#             return Response({'message': 'Password changed successfully.'})
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-# class UserProfileViewSet(viewsets.ModelViewSet):
-#     """
-#     ViewSet for user profile management.
-#     """
-
-#     serializer_class = UserProfileSerializer
-#     permission_classes = [permissions.IsAuthenticated]
-
-#     def get_queryset(self):
-#         """Return user's own profile."""
-#         return UserProfile.objects.filter(user=self.request.user)
-
-#     def perform_create(self, serializer):
-#         """Create profile for current user."""
-#         serializer.save(user=self.request.user)
-
-#     @action(detail=False, methods=['get'])
-#     def statistics(self, request):
-#         """Get user learning statistics."""
-#         try:
-#             profile = request.user.profile
-#             data = {
-#                 'total_study_time': profile.total_study_time,
-#                 'lessons_completed': profile.lessons_completed,
-#                 'exercises_completed': profile.exercises_completed,
-#                 'current_streak': profile.current_streak,
-#                 'longest_streak': profile.longest_streak,
-#                 'daily_goal_minutes': profile.daily_goal_minutes,
-#             }
-#             return Response(data)
-#         except UserProfile.DoesNotExist:
-#             return Response(
-#                 {'error': 'Profile not found'},
-#                 status=status.HTTP_404_NOT_FOUND
-#             )
+class MeView(APIView):
+    def get(self, request):
+        user, err = _get_user_from_bearer(request)
+        if err: return err
+        data = {"user": UserSerializer(user).data}
+        try:
+            student = Student.objects.get(pk=user.id)
+            data["student"] = StudentSerializer(student).data
+        except Student.DoesNotExist:
+            data["student"] = None
+        return Response(data, status=200)
